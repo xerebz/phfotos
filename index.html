@@ -29,50 +29,18 @@
             object-fit: cover;
             display: block;
         }
-        
-        .spinner-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #3498db;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body>
     <div class="image-container">
         <img id="main-image" src="https://picsum.photos/3840/2160" alt="Random Image">
-        <div class="spinner-overlay" id="spinner-overlay">
-            <div class="spinner"></div>
-        </div>
     </div>
 
     <script>
         const image = document.getElementById('main-image');
-        const spinnerOverlay = document.getElementById('spinner-overlay');
+        let autoLoadTimer;
         
-        image.addEventListener('click', function() {
-            // Show spinner
-            spinnerOverlay.style.display = 'flex';
-            
+        function loadNewImage() {
             // Create new image element to preload
             const newImg = new Image();
             
@@ -80,20 +48,36 @@
             const newSrc = `https://picsum.photos/3840/2160?random=${Date.now()}`;
             
             newImg.onload = function() {
-                // Hide spinner and update main image
-                spinnerOverlay.style.display = 'none';
+                // Update main image
                 image.src = newSrc;
+                
+                // Start 30-second timer for next automatic load
+                clearTimeout(autoLoadTimer);
+                autoLoadTimer = setTimeout(loadNewImage, 30000);
             };
             
             newImg.onerror = function() {
-                // Hide spinner on error
-                spinnerOverlay.style.display = 'none';
                 console.error('Failed to load new image');
+                
+                // Retry after 5 seconds on error
+                clearTimeout(autoLoadTimer);
+                autoLoadTimer = setTimeout(loadNewImage, 5000);
             };
             
             // Start loading new image
             newImg.src = newSrc;
+        }
+        
+        // Click to load new image immediately
+        image.addEventListener('click', function() {
+            clearTimeout(autoLoadTimer);
+            loadNewImage();
         });
+        
+        // Start automatic loading after initial image loads
+        image.addEventListener('load', function() {
+            autoLoadTimer = setTimeout(loadNewImage, 30000);
+        }, { once: true });
     </script>
 </body>
 </html>
