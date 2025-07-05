@@ -1,1 +1,99 @@
-<img src="https://picsum.photos/3840/2160">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Loader</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .image-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            cursor: pointer;
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .spinner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img id="main-image" src="https://picsum.photos/3840/2160" alt="Random Image">
+        <div class="spinner-overlay" id="spinner-overlay">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <script>
+        const image = document.getElementById('main-image');
+        const spinnerOverlay = document.getElementById('spinner-overlay');
+        
+        image.addEventListener('click', function() {
+            // Show spinner
+            spinnerOverlay.style.display = 'flex';
+            
+            // Create new image element to preload
+            const newImg = new Image();
+            
+            // Always use 4K resolution with random seed
+            const newSrc = `https://picsum.photos/3840/2160?random=${Date.now()}`;
+            
+            newImg.onload = function() {
+                // Hide spinner and update main image
+                spinnerOverlay.style.display = 'none';
+                image.src = newSrc;
+            };
+            
+            newImg.onerror = function() {
+                // Hide spinner on error
+                spinnerOverlay.style.display = 'none';
+                console.error('Failed to load new image');
+            };
+            
+            // Start loading new image
+            newImg.src = newSrc;
+        });
+    </script>
+</body>
+</html>
